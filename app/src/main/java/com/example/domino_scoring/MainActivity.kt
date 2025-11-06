@@ -21,10 +21,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.example.domino_scoring.ui.theme.Domino_scoringTheme
 import org.opencv.android.OpenCVLoader
 import org.opencv.core.MatOfPoint
@@ -36,7 +36,7 @@ class MainActivity : ComponentActivity() {
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
         if (!isGranted) {
-            // Handle permission denial
+            Log.w("Permissions", "Camera permission was denied.")
         }
     }
 
@@ -112,7 +112,7 @@ fun SettingsScreen(viewModel: GameViewModel, modifier: Modifier = Modifier, onDo
     Column(modifier = modifier.padding(16.dp)) {
         Text("Scoring Rule", style = MaterialTheme.typography.headlineMedium)
         Spacer(modifier = Modifier.height(16.dp))
-        ScoringRule.values().forEach { rule ->
+        ScoringRule.entries.forEach { rule ->
             Row(verticalAlignment = Alignment.CenterVertically) {
                 RadioButton(
                     selected = currentRule == rule,
@@ -132,8 +132,8 @@ fun SettingsScreen(viewModel: GameViewModel, modifier: Modifier = Modifier, onDo
 fun GameScreen(viewModel: GameViewModel, modifier: Modifier = Modifier, onSettingsClicked: () -> Unit) {
     var detectedTiles by remember { mutableStateOf<List<Pair<Int, Int>>>(emptyList()) }
     var detectedContours by remember { mutableStateOf<List<MatOfPoint>>(emptyList()) }
-    var imageWidth by remember { mutableStateOf(0) }
-    var imageHeight by remember { mutableStateOf(0) }
+    var imageWidth by remember { mutableIntStateOf(0) }
+    var imageHeight by remember { mutableIntStateOf(0) }
 
     Box(modifier = modifier.fillMaxSize()) {
         CameraWithAnalysis { tiles, contours, width, height ->

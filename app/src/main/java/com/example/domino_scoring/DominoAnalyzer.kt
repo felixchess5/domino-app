@@ -26,7 +26,6 @@ class DominoAnalyzer(
     @Volatile
     var isEnabled = true
 
-    // Helper to convert ImageProxy to Mat
     private fun imageProxyToMat(image: ImageProxy): Mat {
         val planes = image.planes
         val yBuffer: ByteBuffer = planes[0].buffer
@@ -80,15 +79,15 @@ class DominoAnalyzer(
         Imgproc.morphologyEx(roiBin, clean, Imgproc.MORPH_OPEN, kernel, Point(-1.0, -1.0), 1)
 
         val params = SimpleBlobDetector_Params()
-        params.filterByArea = true
-        params.minArea = 12f
-        params.maxArea = 1500f
-        params.filterByCircularity = true
-        params.minCircularity = 0.6f
-        params.filterByConvexity = true
-        params.minConvexity = 0.7f
-        params.filterByInertia = true
-        params.minInertiaRatio = 0.3f
+        params.set_filterByArea(true)
+        params.set_minArea(12f)
+        params.set_maxArea(1500f)
+        params.set_filterByCircularity(true)
+        params.set_minCircularity(0.6f)
+        params.set_filterByConvexity(true)
+        params.set_minConvexity(0.7f)
+        params.set_filterByInertia(true)
+        params.set_minInertiaRatio(0.3f)
 
         val detector = SimpleBlobDetector.create(params)
         val keypoints = MatOfKeyPoint()
@@ -111,7 +110,7 @@ class DominoAnalyzer(
         val imageWidth = imageProxy.width
         val imageHeight = imageProxy.height
         val mat = imageProxyToMat(imageProxy)
-        imageProxy.close() // Close early to avoid holding up the camera
+        imageProxy.close() 
 
         val gray = Mat()
         Imgproc.cvtColor(mat, gray, Imgproc.COLOR_BGR2GRAY)
@@ -151,7 +150,7 @@ class DominoAnalyzer(
                 val ratio = max(w, h) / max(1.0, min(w, h))
 
                 if (ratio >= 1.6 && ratio <= 2.6) {
-                    detectedContours.add(c.clone())
+                    detectedContours.add(MatOfPoint(*c.toArray()))
                     val warped = warpToSize(mat, approx, Size(200.0, 100.0))
                     val wGray = Mat()
                     Imgproc.cvtColor(warped, wGray, Imgproc.COLOR_BGR2GRAY)
@@ -188,6 +187,6 @@ class DominoAnalyzer(
         gray.release()
         bin.release()
         hierarchy.release()
-        detectedContours.forEach { it.release() }
+        detectedContours.forEach { it.release() } 
     }
 }
