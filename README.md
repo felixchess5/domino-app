@@ -1,47 +1,49 @@
 # Domino Scoring Mobile App (OpenCV Auto-Count)
 
 ### Overview
-A mobile app that uses **OpenCV** to automatically detect and score domino tiles from a live camera feed. It identifies tiles, counts the number of pips (dots) on each half, and computes scores based on selected rule sets (e.g., total pips or all-fives).
+A mobile app that uses **OpenCV** to automatically detect and score domino tiles from a live camera feed. It identifies tiles, counts the number of pips (dots) on each half, and computes scores based on selected rule sets.
 
 ---
 
 ## 🎯 Core Features
 
-1.  **Live Camera Capture**
-    - Uses CameraX for real-time camera feed.
-    - Real-time detection and scoring overlay.
+1.  **Live Camera Capture & Overlay**
+    -   Uses CameraX for a real-time camera feed.
+    -   Draws overlays on detected dominoes, showing their values.
 
-2.  **Automatic Domino Recognition**
-    - Detects tile outlines on flat surfaces.
-    - Splits each tile into two halves.
+2.  **Automatic Domino Recognition & Scoring**
+    -   Detects domino outlines using OpenCV.
+    -   Counts pips on each half to determine the domino's value.
 
-3.  **Pip Detection**
-    - Counts circular blobs (pips) via `SimpleBlobDetector`.
-    - Robust against lighting and angle variations.
+3.  **Flexible Gameplay**
+    -   Supports multiple players with a dynamic scoreboard.
+    -   Turn-based scoring with "Confirm" and "Undo" actions.
 
-4.  **Scoring Logic**
-    - Computes tile values `(a,b)` where `a ≤ b`.
-    - Configurable scoring:
-        - Total Pips
-        - All Fives (Muggins)
+4.  **Configurable Scoring Rules**
+    -   **Total Pips**: Scores the sum of all pips on the detected dominoes.
+    -   **All Fives**: Scores only if the total pips are a multiple of five.
 
 ---
 
 ## 🚀 Getting Started
 
 1.  Clone this repository.
-2.  Open the project in Android Studio.
+2.  Open the project in Android Studio. It includes the required OpenCV library as a local module.
 3.  Build and run the app on a physical Android device.
-4.  Press the "Start" button to begin domino detection.
+4.  On the first screen, add one or more players.
+5.  The game screen will appear, showing the live camera feed. Place dominoes in the view to see them detected.
+6.  Use the "Settings" screen to change the scoring rule.
+7.  Use "Confirm Turn" to add the detected score to the current player.
 
 ---
 
-## 🗓️ Roadmap
+## 🗓️ Development Status
 
-| Sprint | Features |
-|:-------|:----------|
-| 1 | Python prototype (photo testing) + Manual confirm UI |
-| 2 | **Android MVP with live detection + scoring (Current Stage)** |
-| 3 | Player tracking + score history |
-| 4 | On-device ML model for pip validation |
-| 5 | Multiplayer & social features |
+| Sprint | Features                                                | Status      |
+| :----- | :------------------------------------------------------ | :---------- |
+| 1      | Initial Python Prototype & Core Vision Logic          | ✅ Done     |
+| 2      | Android MVP: Live Camera & Basic Detection              | ✅ Done     |
+| 3      | Player & Game Management: Add Players, Scoreboard, Turns | ✅ Done     |
+| 4      | Advanced Gameplay: Scoring Rules & Undo                 | ✅ Done     |
+| 5      | UI Polish: Visual Overlays for Dominoes                 | ✅ Done     |
+| 6      | Future: On-device ML, Cloud Sync, Analytics             | 🚧 Next Up  |

@@ -20,7 +20,7 @@ import kotlin.math.max
 import kotlin.math.min
 
 class DominoAnalyzer(
-    private val onResults: (List<Pair<Int, Int>>, List<MatOfPoint>, Int, Int) -> Unit
+    var onResults: (List<Pair<Int, Int>>, List<MatOfPoint>, Int, Int) -> Unit
 ) : ImageAnalysis.Analyzer {
 
     @Volatile
@@ -110,7 +110,7 @@ class DominoAnalyzer(
         val imageWidth = imageProxy.width
         val imageHeight = imageProxy.height
         val mat = imageProxyToMat(imageProxy)
-        imageProxy.close() 
+        imageProxy.close()
 
         val gray = Mat()
         Imgproc.cvtColor(mat, gray, Imgproc.COLOR_BGR2GRAY)
@@ -187,6 +187,6 @@ class DominoAnalyzer(
         gray.release()
         bin.release()
         hierarchy.release()
-        detectedContours.forEach { it.release() } 
+        detectedContours.forEach { it.release() }
     }
 }

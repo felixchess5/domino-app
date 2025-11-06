@@ -134,14 +134,20 @@ fun GameScreen(viewModel: GameViewModel, modifier: Modifier = Modifier, onSettin
     var detectedContours by remember { mutableStateOf<List<MatOfPoint>>(emptyList()) }
     var imageWidth by remember { mutableIntStateOf(0) }
     var imageHeight by remember { mutableIntStateOf(0) }
+    var isAnalysisPaused by remember { mutableStateOf(false) }
 
-    Box(modifier = modifier.fillMaxSize()) {
-        CameraWithAnalysis { tiles, contours, width, height ->
+    val onAnalyzed: (List<Pair<Int, Int>>, List<MatOfPoint>, Int, Int) -> Unit = {
+        tiles, contours, width, height ->
             detectedTiles = tiles
             detectedContours = contours
             imageWidth = width
             imageHeight = height
-        }
+    }
+
+    val dominoAnalyzer = remember { DominoAnalyzer(onAnalyzed) }
+
+    Box(modifier = modifier.fillMaxSize()) {
+        CameraWithAnalysis(dominoAnalyzer)
 
         AndroidView(
             factory = { OverlayView(it) },
@@ -164,6 +170,15 @@ fun GameScreen(viewModel: GameViewModel, modifier: Modifier = Modifier, onSettin
                 Button(onClick = { viewModel.undo() }) {
                     Text("Undo")
                 }
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            Row {
+                Button(onClick = {
+                    isAnalysisPaused = !isAnalysisPaused
+                    dominoAnalyzer.isEnabled = !isAnalysisPaused
+                }) {
+                    Text(if (isAnalysisPaused) "Resume" else "Freeze")
+                }
                 Spacer(modifier = Modifier.width(8.dp))
                 Button(onClick = onSettingsClicked) {
                     Text("Settings")
@@ -174,17 +189,12 @@ fun GameScreen(viewModel: GameViewModel, modifier: Modifier = Modifier, onSettin
 }
 
 @Composable
-fun CameraWithAnalysis(onAnalyzed: (List<Pair<Int, Int>>, List<MatOfPoint>, Int, Int) -> Unit) {
+fun CameraWithAnalysis(dominoAnalyzer: DominoAnalyzer) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
     val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
     val cameraExecutor = remember { Executors.newSingleThreadExecutor() }
-    val dominoAnalyzer = remember {
-        DominoAnalyzer { tiles, contours, width, height ->
-            onAnalyzed(tiles, contours, width, height)
-        }
-    }
 
     AndroidView(
         factory = { ctx ->
