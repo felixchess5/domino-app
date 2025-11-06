@@ -37,6 +37,51 @@ A mobile app that uses **OpenCV** to automatically detect and score domino tiles
 
 ---
 
+## 🚀 Future Features
+
+### 🎮 Game Modes
+- **Individual Mode**: Classic 2-4 player gameplay
+- **Couples Mode**: Team-based 2v2 domino matches
+- **Tournament Mode**: Multi-round elimination brackets
+
+### 🎲 Domino Set Support
+- **Double 6**: Traditional 28-tile set (0-0 to 6-6)
+- **Double 9**: Extended 55-tile set (0-0 to 9-9)
+- **Double 12**: Professional 91-tile set (0-0 to 12-12)
+
+### 🏆 Advanced Scoring Systems
+- **Target Score Variants**: First to 100, 200, 500 points
+- **Cuban Scoring**:
+  - Bonuses: 100, 75, 50, 25 points for special plays
+  - **Capicú**: Bonus for starting and ending a round
+  - **Chuchazo**: Double points for certain combinations
+- **Block Scoring**:
+  - Couples scoring with lowest combined score wins
+  - Individual scoring against player on the right
+
+### 📊 Analytics & Features
+- **Game Statistics**: Win rates, average scores, play patterns
+- **Hand Recognition**: Detect and track individual player hands
+- **Timer Integration**: Enforce turn time limits
+- **Sound Effects**: Audio feedback for scoring and actions
+- **Export/Import**: Save and share game configurations
+- **Offline Mode**: Play without internet connectivity
+
+### 🤝 Social Features
+- **Multiplayer Sync**: Real-time scoring across multiple devices
+- **Leaderboards**: Local and online ranking systems
+- **Achievement System**: Unlock badges and milestones
+- **Game Replay**: Review and analyze past games
+
+### 🔧 Technical Enhancements
+- **On-device ML**: Improved domino recognition accuracy
+- **Cloud Sync**: Backup game data and settings
+- **Dark Mode**: Enhanced UI themes
+- **Accessibility**: Voice commands and screen reader support
+- **Augmented Reality**: 3D overlays and enhanced visualization
+
+---
+
 ## 🗓️ Development Status
 
 | Sprint | Features                                                | Status      |
@@ -46,4 +91,6 @@ A mobile app that uses **OpenCV** to automatically detect and score domino tiles
 | 3      | Player & Game Management: Add Players, Scoreboard, Turns | ✅ Done     |
 | 4      | Advanced Gameplay: Scoring Rules & Undo                 | ✅ Done     |
 | 5      | UI Polish: Visual Overlays for Dominoes                 | ✅ Done     |
-| 6      | Future: On-device ML, Cloud Sync, Analytics             | 🚧 Next Up  |
+| 6      | Game Modes & Domino Sets                                | 🚧 Next Up  |
+| 7      | Advanced Scoring Systems                                 | 📋 Planned  |
+| 8      | Analytics & Social Features                              | 📋 Planned  |
