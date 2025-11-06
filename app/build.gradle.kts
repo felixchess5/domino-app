@@ -42,6 +42,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":opencv"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -57,9 +58,6 @@ dependencies {
     implementation("androidx.camera:camera-lifecycle:1.3.3")
     implementation("androidx.camera:camera-view:1.3.3")
     implementation("androidx.camera:camera-extensions:1.3.3")
-
-    // OpenCV
-    implementation("com.quickbirdstudios:opencv:4.9.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

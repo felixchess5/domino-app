@@ -20,7 +20,7 @@ import kotlin.math.max
 import kotlin.math.min
 
 class DominoAnalyzer(
-    private val onTiles: (List<Pair<Int, Int>>, Int) -> Unit
+    private val onResults: (List<Pair<Int, Int>>, List<MatOfPoint>, Int, Int) -> Unit
 ) : ImageAnalysis.Analyzer {
 
     @Volatile
@@ -108,6 +108,8 @@ class DominoAnalyzer(
             return
         }
 
+        val imageWidth = imageProxy.width
+        val imageHeight = imageProxy.height
         val mat = imageProxyToMat(imageProxy)
         imageProxy.close() // Close early to avoid holding up the camera
 
@@ -128,6 +130,7 @@ class DominoAnalyzer(
         )
 
         val results = mutableListOf<Pair<Int, Int>>()
+        val detectedContours = mutableListOf<MatOfPoint>()
 
         for (c in contours) {
             val area = Imgproc.contourArea(c)
@@ -148,6 +151,7 @@ class DominoAnalyzer(
                 val ratio = max(w, h) / max(1.0, min(w, h))
 
                 if (ratio >= 1.6 && ratio <= 2.6) {
+                    detectedContours.add(c.clone())
                     val warped = warpToSize(mat, approx, Size(200.0, 100.0))
                     val wGray = Mat()
                     Imgproc.cvtColor(warped, wGray, Imgproc.COLOR_BGR2GRAY)
@@ -178,13 +182,12 @@ class DominoAnalyzer(
             approx.release()
         }
 
-        val total = results.sumOf { it.first + it.second }
-        onTiles(results, total)
+        onResults(results, detectedContours, imageWidth, imageHeight)
 
-        // Release all Mats
         mat.release()
         gray.release()
         bin.release()
         hierarchy.release()
+        detectedContours.forEach { it.release() }
     }
 }

@@ -27,6 +27,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import com.example.domino_scoring.ui.theme.Domino_scoringTheme
 import org.opencv.android.OpenCVLoader
+import org.opencv.core.MatOfPoint
 import java.util.concurrent.Executors
 
 class MainActivity : ComponentActivity() {
@@ -51,7 +52,6 @@ class MainActivity : ComponentActivity() {
             requestPermissionLauncher.launch(Manifest.permission.CAMERA)
         }
 
-        // Initialize OpenCV
         if (OpenCVLoader.initLocal()) {
             Log.i("OpenCV", "OpenCV loaded successfully")
         } else {
@@ -60,13 +60,22 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             Domino_scoringTheme {
+                var showSettings by remember { mutableStateOf(false) }
                 val players by gameViewModel.players
 
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     if (players.isEmpty()) {
                         PlayerSetupScreen(gameViewModel, modifier = Modifier.padding(innerPadding))
                     } else {
-                        GameScreen(gameViewModel, modifier = Modifier.padding(innerPadding))
+                        if (showSettings) {
+                            SettingsScreen(gameViewModel, modifier = Modifier.padding(innerPadding)) {
+                                showSettings = false
+                            }
+                        } else {
+                            GameScreen(gameViewModel, modifier = Modifier.padding(innerPadding)) {
+                                showSettings = true
+                            }
+                        }
                     }
                 }
             }
@@ -97,48 +106,83 @@ fun PlayerSetupScreen(viewModel: GameViewModel, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun GameScreen(viewModel: GameViewModel, modifier: Modifier = Modifier) {
+fun SettingsScreen(viewModel: GameViewModel, modifier: Modifier = Modifier, onDone: () -> Unit) {
+    val currentRule by viewModel.scoringRule
+
+    Column(modifier = modifier.padding(16.dp)) {
+        Text("Scoring Rule", style = MaterialTheme.typography.headlineMedium)
+        Spacer(modifier = Modifier.height(16.dp))
+        ScoringRule.values().forEach { rule ->
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                RadioButton(
+                    selected = currentRule == rule,
+                    onClick = { viewModel.setScoringRule(rule) }
+                )
+                Text(rule.name.replace('_', ' ').lowercase())
+            }
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(onClick = onDone) {
+            Text("Done")
+        }
+    }
+}
+
+@Composable
+fun GameScreen(viewModel: GameViewModel, modifier: Modifier = Modifier, onSettingsClicked: () -> Unit) {
     var detectedTiles by remember { mutableStateOf<List<Pair<Int, Int>>>(emptyList()) }
-    var totalPips by remember { mutableStateOf(0) }
+    var detectedContours by remember { mutableStateOf<List<MatOfPoint>>(emptyList()) }
+    var imageWidth by remember { mutableStateOf(0) }
+    var imageHeight by remember { mutableStateOf(0) }
 
     Box(modifier = modifier.fillMaxSize()) {
-        CameraWithAnalysis { tiles, total ->
+        CameraWithAnalysis { tiles, contours, width, height ->
             detectedTiles = tiles
-            totalPips = total
+            detectedContours = contours
+            imageWidth = width
+            imageHeight = height
         }
+
+        AndroidView(
+            factory = { OverlayView(it) },
+            modifier = Modifier.fillMaxSize(),
+            update = { view ->
+                view.update(detectedContours, detectedTiles, imageWidth, imageHeight)
+            }
+        )
+
         Column(modifier = Modifier.padding(16.dp)) {
             Scoreboard(viewModel)
             Spacer(modifier = Modifier.height(16.dp))
-            Text("Total Pips This Turn: $totalPips")
             Text("Detected Tiles: ${detectedTiles.joinToString()}")
             Spacer(modifier = Modifier.height(16.dp))
             Row {
-                Button(onClick = {
-                    viewModel.updateScore(viewModel.currentPlayerIndex.value, totalPips)
-                    viewModel.nextTurn()
-                }) {
+                Button(onClick = { viewModel.confirmTurn(detectedTiles) }) {
                     Text("Confirm Turn")
                 }
                 Spacer(modifier = Modifier.width(8.dp))
                 Button(onClick = { viewModel.undo() }) {
                     Text("Undo")
                 }
+                Spacer(modifier = Modifier.width(8.dp))
+                Button(onClick = onSettingsClicked) {
+                    Text("Settings")
+                }
             }
         }
     }
 }
 
-
 @Composable
-fun CameraWithAnalysis(onAnalyzed: (List<Pair<Int, Int>>, Int) -> Unit) {
+fun CameraWithAnalysis(onAnalyzed: (List<Pair<Int, Int>>, List<MatOfPoint>, Int, Int) -> Unit) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
     val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
     val cameraExecutor = remember { Executors.newSingleThreadExecutor() }
     val dominoAnalyzer = remember {
-        DominoAnalyzer { tiles, total ->
-            onAnalyzed(tiles, total)
+        DominoAnalyzer { tiles, contours, width, height ->
+            onAnalyzed(tiles, contours, width, height)
         }
     }
 
